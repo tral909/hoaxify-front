@@ -215,5 +215,24 @@ describe('UserSignupPage', () => {
             const spinner = queryByText('Loading...')
             await waitFor(() => expect(spinner).not.toBeInTheDocument())
         })
+
+        it('displays validation error for displayName when error is received for the field', async () => {
+            const actions = {
+                postSignup: jest.fn().mockRejectedValue({
+                    response: {
+                        data: {
+                            validationErrors: {
+                                displayName: 'Не может быть null'
+                            }
+                        }
+                    }
+                })
+            }
+            const { queryByText } = setupForSubmit({actions})
+            fireEvent.click(button)
+
+            const errorMessage = await waitFor(() => queryByText('Не может быть null'))
+            expect(errorMessage).toBeInTheDocument()
+        })
     })
 })
