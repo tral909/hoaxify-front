@@ -1,14 +1,10 @@
 import React from 'react'
 import { 
-    cleanup,
     render,
     fireEvent,
     waitFor
 } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
 import { UserSignupPage } from './UserSignupPage'
-
-//beforeEach(cleanup)
 
 describe('UserSignupPage', () => {
     describe('Layout', () => { 
@@ -231,8 +227,7 @@ describe('UserSignupPage', () => {
             const { queryByText } = setupForSubmit({actions})
             fireEvent.click(button)
 
-            const errorMessage = await waitFor(() => queryByText('Не может быть null'))
-            expect(errorMessage).toBeInTheDocument()
+            await waitFor(() => expect(queryByText('Не может быть null')).toBeInTheDocument())
         })
     })
 })
