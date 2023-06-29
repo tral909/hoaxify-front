@@ -8,12 +8,12 @@ import * as apiCalls from './api/apiCalls'
 
 
 const actions = {
-  postSignup: apiCalls.signup
+  postLogin: apiCalls.login
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <LoginPage />
+    <LoginPage actions={actions} />
   </React.StrictMode>
 );
 
