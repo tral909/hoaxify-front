@@ -166,8 +166,8 @@ describe('UserSignupPage', () => {
             }
             setupForSubmit({ actions })
             fireEvent.click(button)
-            fireEvent.click(button)
 
+            fireEvent.click(button)
             expect(actions.postSignup).toHaveBeenCalledTimes(1)
         })
 

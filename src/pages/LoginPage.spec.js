@@ -43,6 +43,16 @@ describe('LoginPage', () => {
             }
         }
 
+        const mockAsyncDelayed = () => {
+            return jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve({})
+                    }, 300)
+                })
+            })
+        }
+
         let usernameInput, passwordInput, button
 
         const setupForSubmit = (props) => {
@@ -175,6 +185,58 @@ describe('LoginPage', () => {
 
             const alert = queryByText('Login failed')
             expect(alert).not.toBeInTheDocument()
+        })
+
+        it('does not allow user to click the Login button when there is an ongoing api call', () => {
+            const actions = {
+                postLogin: mockAsyncDelayed()
+            }
+            setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            fireEvent.click(button)
+            expect(actions.postLogin).toHaveBeenCalledTimes(1)
+        })
+
+        it('displays spinner when there is an ongoing api call', () => {
+            const actions = {
+                postLogin: mockAsyncDelayed()
+            }
+            const { queryByText } = setupForSubmit({ actions })
+            fireEvent.click(button)
+
+            const spinner = queryByText('Loading...')
+            expect(spinner).toBeInTheDocument()
+        })
+
+        it('hides spinner after api call finishes successfully', async () => {
+            const actions = {
+                postLogin: mockAsyncDelayed()
+            }
+            const { queryByText } = setupForSubmit({ actions })
+            fireEvent.click(button)
+            
+            const spinner = queryByText('Loading...')
+            await waitFor(() => expect(spinner).not.toBeInTheDocument())
+        })
+
+        it('hides spinner after api call finishes error', async () => {
+            const actions = {
+                postLogin: jest.fn().mockImplementation(() => {
+                    return new Promise((resolve, reject) => {
+                        setTimeout(() => {
+                            reject({
+                                response: { data: {} }
+                            })
+                        }, 300)
+                    })
+                })
+            }
+            const {queryByText} = setupForSubmit({ actions })
+            fireEvent.click(button)
+            
+            const spinner = queryByText('Loading...')
+            await waitFor(() => expect(spinner).not.toBeInTheDocument())
         })
     })
 })
