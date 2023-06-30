@@ -28,7 +28,9 @@ export class LoginPage extends React.Component {
         this.props.actions
             .postLogin(body)
             .then(response => {
-                this.setState({ pendingApiCall: false })
+                this.setState({ pendingApiCall: false }, () => {
+                    this.props.history.push('/')
+                })
             })
             .catch(error => {
                 if (error.response) {
@@ -85,6 +87,9 @@ export class LoginPage extends React.Component {
 LoginPage.defaultProps = {
     actions: {
         postLogin: () => new Promise((resolve, reject) => resolve({}))
+    },
+    history: {
+        push: () => {}
     }
 }
 

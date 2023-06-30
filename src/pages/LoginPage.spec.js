@@ -88,7 +88,7 @@ describe('LoginPage', () => {
                 postLogin: jest.fn().mockResolvedValue({})
             }
 
-            setupForSubmit({actions})
+            setupForSubmit({ actions })
             
             fireEvent.click(button)
             expect(actions.postLogin).toHaveBeenCalledTimes(1)
@@ -141,7 +141,7 @@ describe('LoginPage', () => {
                     }
                 })
             }
-            const { queryByText } = setupForSubmit({actions})
+            const { queryByText } = setupForSubmit({ actions })
             fireEvent.click(button)
 
             await waitFor(() => expect(queryByText('Login failed')).toBeInTheDocument())
@@ -157,7 +157,7 @@ describe('LoginPage', () => {
                     }
                 })
             }
-            const { queryByText } = setupForSubmit({actions})
+            const { queryByText } = setupForSubmit({ actions })
             fireEvent.click(button)
 
             await waitFor(() => expect(queryByText('Login failed')).toBeInTheDocument())
@@ -177,7 +177,7 @@ describe('LoginPage', () => {
                     }
                 })
             }
-            const { queryByText } = setupForSubmit({actions})
+            const { queryByText } = setupForSubmit({ actions })
             fireEvent.click(button)
 
             await waitFor(() => expect(queryByText('Login failed')).toBeInTheDocument())
@@ -232,11 +232,25 @@ describe('LoginPage', () => {
                     })
                 })
             }
-            const {queryByText} = setupForSubmit({ actions })
+            const { queryByText } = setupForSubmit({ actions })
             fireEvent.click(button)
             
             const spinner = queryByText('Loading...')
             await waitFor(() => expect(spinner).not.toBeInTheDocument())
+        })
+
+        it('redirects to homePage after successful login', async () => {
+            const actions = {
+                postLogin: jest.fn().mockResolvedValue({})
+            }
+            const history = {
+                push: jest.fn()
+            }
+            setupForSubmit({ actions, history })
+            fireEvent.click(button)
+
+            await waitFor(() => expect(history.push).toHaveBeenCalledWith('/'))
+            
         })
     })
 })
