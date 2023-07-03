@@ -1,6 +1,7 @@
 import React from 'react'
 import Input from '../components/Input'
 import ButtonWithProgress from '../components/ButtonWithProgress'
+import { connect } from 'react-redux'
 
 export class UserSignupPage extends React.Component {
 
@@ -51,19 +52,47 @@ export class UserSignupPage extends React.Component {
             displayName: this.state.displayName,
             password: this.state.password
         }
-        this.setState({pendingApiCall: true})
+        this.setState({ pendingApiCall: true })
         this.props.actions.postSignup(user).then(response => {
-            this.setState({pendingApiCall: false}, () => {
-                this.props.history.push('/')
-            })
-        })
-        .catch(apiError => {
-            let errors = { ...this.state.errors }
-            if (apiError.response.data && apiError.response.data.validationErrors) {
-                errors = { ...apiError.response.data.validationErrors }
+            const body = {
+                username: this.state.username,
+                password: this.state.password
             }
-            this.setState({pendingApiCall: false, errors})
+            this.setState({ pendingApiCall: true })
+            this.props.actions
+                .postLogin(body)
+                .then(response => {
+                    const action = {
+                        type: 'login-success',
+                        payload: {
+                            ...response.data,
+                            password: this.state.password
+                        }
+                    }
+                    this.props.dispatch(action)
+                    this.setState({ pendingApiCall: false }, () => {
+                        this.props.history.push('/')
+                    })
+                })
+                .catch(error => {
+                    if (error.response) {
+                        this.setState({
+                            apiError: error.response.data.message,
+                            pendingApiCall: false
+                        })
+                    }
+                })
+            // this.setState({pendingApiCall: false}, () => {
+            //     this.props.history.push('/')
+            // })
         })
+            .catch(apiError => {
+                let errors = { ...this.state.errors }
+                if (apiError.response.data && apiError.response.data.validationErrors) {
+                    errors = { ...apiError.response.data.validationErrors }
+                }
+                this.setState({ pendingApiCall: false, errors })
+            })
     }
 
     render() {
@@ -77,7 +106,7 @@ export class UserSignupPage extends React.Component {
                         value={this.state.displayName}
                         onChange={this.onChangeDisplayName}
                         hasError={this.state.errors.displayName && true}
-                        error={this.state.errors.displayName} 
+                        error={this.state.errors.displayName}
                     />
                 </div>
                 <div className='col-12 mb-3'>
@@ -87,7 +116,7 @@ export class UserSignupPage extends React.Component {
                         value={this.state.username}
                         onChange={this.onChangeUsername}
                         hasError={this.state.errors.username && true}
-                        error={this.state.errors.username} 
+                        error={this.state.errors.username}
                     />
                 </div>
                 <div className='col-12 mb-3'>
@@ -98,7 +127,7 @@ export class UserSignupPage extends React.Component {
                         value={this.state.password}
                         onChange={this.onChangePassword}
                         hasError={this.state.errors.password && true}
-                        error={this.state.errors.password} 
+                        error={this.state.errors.password}
                     />
                 </div>
                 <div className='col-12 mb-3'>
@@ -127,14 +156,14 @@ export class UserSignupPage extends React.Component {
 
 UserSignupPage.defaultProps = {
     actions: {
-        postSignup: () => 
+        postSignup: () =>
             new Promise((resolve, reject) => {
                 resolve({})
             })
     },
     history: {
-        push: () => {}
+        push: () => { }
     }
 }
 
-export default UserSignupPage
+export default connect()(UserSignupPage)
