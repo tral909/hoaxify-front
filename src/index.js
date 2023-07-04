@@ -5,12 +5,9 @@ import { HashRouter } from 'react-router-dom/cjs/react-router-dom'
 import reportWebVitals from './reportWebVitals'
 import App from './containers/App'
 import { Provider } from 'react-redux'
-import { createStore, applyMiddleware } from 'redux'
-import authReducer from './redux/authReducer'
-import logger from 'redux-logger'
+import configureStore from './redux/configureStore'
 
-
-const store = createStore(authReducer, applyMiddleware(logger))
+const store = configureStore()
 
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
