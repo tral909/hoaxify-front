@@ -5,13 +5,6 @@ import LoginPage from '../pages/LoginPage'
 import UserSignupPage from '../pages/UserSignupPage'
 import UserPage from '../pages/UserPage'
 import TopBar from '../components/TopBar'
-import * as apiCalls from '../api/apiCalls'
-
-
-const actions = {
-    postLogin: apiCalls.login,
-    postSignup: apiCalls.signup
-}
 
 function App() {
     return (
@@ -22,12 +15,10 @@ function App() {
                     <Route exact path='/' component={HomePage} />
                     <Route
                         path='/login'
-                        component={(props) => <LoginPage {...props} actions={actions} />}
-                    />
+                        component={LoginPage} />
                     <Route
                         path='/signup'
-                        component={(props) => <UserSignupPage {...props} actions={actions} />}
-                    />
+                        component={UserSignupPage} />
                     <Route path='/:username' component={UserPage} />
                 </Switch>
             </div>

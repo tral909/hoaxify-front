@@ -11,11 +11,19 @@ export const loginHandler = (credentials) => {
     return function (dispatch) {
         return apiCalls.login(credentials)
             .then(response => {
-                dispatch(authActions.loginSuccess({
+                dispatch(loginSuccess({
                     ...response.data,
                     password: credentials.password
                 }))
                 return response
             })
+    }
+}
+
+export const signupHandler = (user) => {
+    return function (dispatch) {
+        return apiCalls.signup(user).then(response => {
+            return dispatch(loginHandler(user))
+        })
     }
 }
