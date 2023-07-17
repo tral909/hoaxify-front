@@ -12,3 +12,5 @@ describe('UserPage', () => {
         })
     })
 })
+
+console.error = () => {}
