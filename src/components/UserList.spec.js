@@ -2,13 +2,18 @@ import React from 'react'
 import { render, waitFor, fireEvent } from '@testing-library/react'
 import UserList from './UserList'
 import * as apiCalls from '../api/apiCalls'
+import { MemoryRouter } from 'react-router-dom'
 
 beforeEach(() => {
     apiCalls.listUsers = jest.fn().mockResolvedValue(mockedEmptySuccessResponse)
 })
 
 const setup = () => {
-    return render(<UserList />)
+    return render(
+        <MemoryRouter>
+            <UserList />
+        </MemoryRouter>
+    )
 }
 
 const mockedEmptySuccessResponse = {
@@ -140,6 +145,14 @@ describe('UserList', () => {
             apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetMultiPageFirst)
             const { queryByText } = setup()
             await waitFor(() => expect(queryByText('< previous')).not.toBeInTheDocument())
+        })
+
+        it('has link to UserPage', async () => {
+            apiCalls.listUsers = jest.fn().mockResolvedValue(mockSuccessGetSinglePage)
+            const { queryByText, container } = setup()
+            await waitFor(() => expect(queryByText('display1@user1')).toBeInTheDocument())
+            const firstAnchor = container.querySelectorAll('a')[0]
+            expect(firstAnchor.getAttribute('href')).toBe('/user1')
         })
     })
 
