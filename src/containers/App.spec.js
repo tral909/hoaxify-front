@@ -17,6 +17,14 @@ beforeEach(() => {
             size: 3
         }
     })
+    apiCalls.getUser = jest.fn().mockResolvedValue({
+        data: {
+            id: 1,
+            username: 'user1',
+            displayName: 'display1',
+            image: 'profile.png'
+        }
+    })
 })
 
 const setup = (path) => {
