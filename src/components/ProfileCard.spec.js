@@ -1,4 +1,4 @@
-import react from 'react'
+import React from 'react'
 import { render } from '@testing-library/react'
 import ProfileCard from './ProfileCard'
 
