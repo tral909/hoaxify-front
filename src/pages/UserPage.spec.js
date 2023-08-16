@@ -49,6 +49,20 @@ describe('UserPage', () => {
             const { queryByText } = setup({ match })
             await waitFor(() => expect(queryByText('User not found')).toBeInTheDocument())
         })
+
+        it('displays spinner while loading user data', async () => {
+            const mockDelayedResponse = jest.fn().mockImplementation(() => {
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        resolve(mockSuccessGetUser)
+                    }, 300)
+                })
+            })
+            apiCalls.getUser = mockDelayedResponse
+            const { queryByText } = setup({ match })
+            const spinner = queryByText('Loading...')
+            expect(spinner).toBeInTheDocument()
+        })
     })
 
     describe('Lifecycle', () => {
