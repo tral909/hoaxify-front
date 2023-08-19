@@ -3,8 +3,8 @@ import { render, fireEvent, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import App from './App'
 import { Provider } from 'react-redux'
-import axios from 'axios'
 import configureStore from '../redux/configureStore'
+import axios from 'axios'
 import * as apiCalls from '../api/apiCalls'
 
 beforeEach(() => {

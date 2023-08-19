@@ -1,6 +1,7 @@
 import React from 'react'
 import * as apiCalls from '../api/apiCalls'
 import ProfileCard from '../components/ProfileCard'
+import { connect } from 'react-redux'
 
 export class UserPage extends React.Component {
     state = {
@@ -52,7 +53,8 @@ export class UserPage extends React.Component {
                 </div>
             )
         } else {
-            pageContent = this.state.user && <ProfileCard user={this.state.user} />
+            const isEditable = this.props.loggedInUser.username === this.props.match.params.username
+            pageContent = this.state.user && <ProfileCard user={this.state.user} isEditable={isEditable} />
         }
         return <div data-testid='userpage'>{pageContent}</div>
     }
@@ -64,4 +66,10 @@ UserPage.defaultProps = {
     }
 }
 
-export default UserPage
+const mapStateToProps = (state) => {
+    return {
+        loggedInUser: state
+    }
+}
+
+export default connect(mapStateToProps)(UserPage)
