@@ -54,7 +54,12 @@ export class UserPage extends React.Component {
             )
         } else {
             const isEditable = this.props.loggedInUser.username === this.props.match.params.username
-            pageContent = this.state.user && <ProfileCard user={this.state.user} isEditable={isEditable} />
+            pageContent = this.state.user && (
+                <ProfileCard
+                    user={this.state.user}
+                    isEditable={isEditable}
+                />
+            )
         }
         return <div data-testid='userpage'>{pageContent}</div>
     }

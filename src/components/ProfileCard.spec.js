@@ -50,5 +50,47 @@ describe('ProfileCard', () => {
             const editButton = queryByText('Edit')
             expect(editButton).not.toBeInTheDocument()
         })
+
+        it('displays displayName input when inEditMode property set as true', () => {
+            const { container } = render(<ProfileCard user={user} inEditMode={true} />)
+            const displayInput = container.querySelector('Input')
+            expect(displayInput).toBeInTheDocument()
+        })
+
+        it('displays the current displayName in input in edit mode', () => {
+            const { container } = render(<ProfileCard user={user} inEditMode={true} />)
+            const displayInput = container.querySelector('Input')
+            expect(displayInput.value).toBe(user.displayName)
+        })
+
+        it('hides the displayName@username in edit mode', () => {
+            const { queryByText } = render(<ProfileCard user={user} inEditMode={true} />)
+            const userInfo = queryByText('display1@user1')
+            expect(userInfo).not.toBeInTheDocument()
+        })
+
+        it('displays label for displayName in edit mode', () => {
+            const { container } = render(<ProfileCard user={user} inEditMode={true} />)
+            const label = container.querySelector('label')
+            expect(label).toHaveTextContent('Change Display Name for user1')
+        })
+
+        it('hides the edit button in edit mode and isEditable provided as true', () => {
+            const { queryByText } = render(<ProfileCard user={user} inEditMode={true} />)
+            const editButton = queryByText('Edit')
+            expect(editButton).not.toBeInTheDocument()
+        })
+
+        it('displays Save Button in edit mode', () => {
+            const { queryByText } = render(<ProfileCard user={user} inEditMode={true} />)
+            const saveButton = queryByText('Save')
+            expect(saveButton).toBeInTheDocument()
+        })
+
+        it('displays Cancel Button in edit mode', () => {
+            const { queryByText } = render(<ProfileCard user={user} inEditMode={true} />)
+            const cancelButton = queryByText('Cancel')
+            expect(cancelButton).toBeInTheDocument()
+        })
     })
 })
