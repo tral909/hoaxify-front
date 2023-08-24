@@ -9,7 +9,8 @@ export class UserPage extends React.Component {
         userNotFound: false,
         isLoadingUser: false,
         inEditMode: false,
-        originalDisplayName: undefined
+        originalDisplayName: undefined,
+        pendingUpdateCall: false
     }
     componentDidMount() {
         this.loadUser()
@@ -58,11 +59,17 @@ export class UserPage extends React.Component {
         const userUpdate = {
             displayName: this.state.user.displayName
         }
+        this.setState({ pendingUpdateCall: true })
         apiCalls.updateUser(userId, userUpdate)
             .then(response => {
                 this.setState({
                     inEditMode: false,
-                    originalDisplayName: undefined
+                    originalDisplayName: undefined,
+                    pendingUpdateCall: false
+                })
+            }).catch(error => {
+                this.setState({
+                    pendingUpdateCall: false
                 })
             })
     }
@@ -107,6 +114,7 @@ export class UserPage extends React.Component {
                     onClickCancel={this.onClickCancel}
                     onClickSave={this.onClickSave}
                     onChangeDisplayName={this.onChangeDisplayName}
+                    pendingUpdateCall={this.state.pendingUpdateCall}
                 />
             )
         }
