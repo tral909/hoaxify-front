@@ -11,7 +11,8 @@ export class UserPage extends React.Component {
         inEditMode: false,
         originalDisplayName: undefined,
         pendingUpdateCall: false,
-        image: undefined
+        image: undefined,
+        errors: {}
     }
     componentDidMount() {
         this.loadUser()
@@ -75,8 +76,13 @@ export class UserPage extends React.Component {
                     image: undefined
                 })
             }).catch(error => {
+                let errors = {}
+                if (error.response.data.validationErrors) {
+                    errors = error.response.data.validationErrors
+                }
                 this.setState({
-                    pendingUpdateCall: false
+                    pendingUpdateCall: false,
+                    errors
                 })
             })
     }
@@ -138,6 +144,7 @@ export class UserPage extends React.Component {
                     pendingUpdateCall={this.state.pendingUpdateCall}
                     loadedImage={this.state.image}
                     onFileSelect={this.onFileSelect}
+                    errors={this.state.errors}
                 />
             )
         }
