@@ -377,9 +377,21 @@ xdescribe('UserPage', () => {
 
             const saveButton = queryByText('Save')
             fireEvent.click(saveButton)
-            
+
             await waitFor(() => expect(
                 queryByText('It must have minimum 4 and maximum 255 characters'))
+                .toBeInTheDocument())
+        })
+
+        it('shows validation error for file when update api fails', async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+            
+            await waitFor(() => expect(
+                queryByText('Only PNG and JPG files are allowed'))
                 .toBeInTheDocument())
         })
     })
