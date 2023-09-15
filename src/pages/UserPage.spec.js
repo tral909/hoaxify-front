@@ -394,6 +394,63 @@ xdescribe('UserPage', () => {
                 queryByText('Only PNG and JPG files are allowed'))
                 .toBeInTheDocument())
         })
+
+        it('removes validation error for displayName when user changes the displayName', async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => expect(
+                queryByText('It must have minimum 4 and maximum 255 characters'))
+                .toBeInTheDocument())
+
+            const displayInput = container.querySelectorAll('input')[0]
+            fireEvent.change(displayInput, { target: { value: 'new-display-name' }})
+
+            await waitFor(() => expect(
+                queryByText('It must have minimum 4 and maximum 255 characters'))
+                .not.toBeInTheDocument())
+        })
+
+        it('removes validation error for file when user changes the file', async () => {
+            const { queryByText, container } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => expect(
+                queryByText('It must have minimum 4 and maximum 255 characters'))
+                .toBeInTheDocument())
+
+            const fileInput = container.querySelectorAll('input')[1]
+            const newFile = new File(['another content'], 'example2.png', {type: 'image/png'})
+            fireEvent.change(fileInput, { target: { files: [newFile] }})
+
+            await waitFor(() => expect(
+                queryByText('Only PNG and JPG files are allowed'))
+                .not.toBeInTheDocument())
+        })
+
+        it('removes validation error if user cancels', async () => {
+            const { queryByText } = await setupForEdit()
+            apiCalls.updateUser = jest.fn().mockRejectedValue(mockFailUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            fireEvent.click(queryByText('Cancel'))
+
+            fireEvent.click(queryByText('Edit'))
+
+            await waitFor(() => expect(
+                queryByText('It must have minimum 4 and maximum 255 characters'))
+                .not.toBeInTheDocument())
+
+            
+        })
     })
 })
 
