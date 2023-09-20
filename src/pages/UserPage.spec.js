@@ -54,8 +54,10 @@ const mockFailUpdateUser = {
     }
 }
 
+let store
+
 const setup = (props) => {
-    const store = configureStore(false)
+    store = configureStore(false)
     return render(
         <Provider store={store}>
             <UserPage {...props} />
@@ -450,6 +452,38 @@ xdescribe('UserPage', () => {
                 .not.toBeInTheDocument())
 
             
+        })
+
+        it('updates redux state after updateUser api call success', async () => {
+            const { queryByText, container } = await setupForEdit()
+            let displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, {target: {value: 'display1-update'}})
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => expect(saveButton).not.toBeDisabled())
+
+            const storedUserData = store.getState()
+            expect(storedUserData.displayName).toBe(mockSuccessUpdateUser.data.displayName)
+            expect(storedUserData.image).toBe(mockSuccessUpdateUser.data.image)
+        })
+
+        it('updates localStorage after updateUser api call success', async () => {
+            const { queryByText, container } = await setupForEdit()
+            let displayInput = container.querySelector('input')
+            fireEvent.change(displayInput, {target: {value: 'display1-update'}})
+            apiCalls.updateUser = jest.fn().mockResolvedValue(mockSuccessUpdateUser)
+
+            const saveButton = queryByText('Save')
+            fireEvent.click(saveButton)
+
+            await waitFor(() => expect(saveButton).not.toBeDisabled())
+            
+            const storedUserData = JSON.parse(localStorage.getItem('hoax-auth'))
+            expect(storedUserData.displayName).toBe(mockSuccessUpdateUser.data.displayName)
+            expect(storedUserData.image).toBe(mockSuccessUpdateUser.data.image)
         })
     })
 })
