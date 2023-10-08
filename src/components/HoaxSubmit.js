@@ -1,12 +1,14 @@
 import React from 'react';
-import ProfileImageWithDefault from './ProfileImageWithDefault';
+import ProfileImageWithDefault from './ProfileImageWithDefault'
 import { connect } from 'react-redux'
 import * as apiCalls from '../api/apiCalls'
+import ButtonWithProgress from './ButtonWithProgress'
 
 class HoaxSubmit extends React.Component {
     state = {
         focused: false,
-        content: undefined
+        content: undefined,
+        pendingApiCall: false
     }
 
     onChangeContent = (event) => {
@@ -18,11 +20,16 @@ class HoaxSubmit extends React.Component {
         const body = {
             content: this.state.content
         }
+        this.setState({pendingApiCall: true})
         apiCalls.postHoax(body).then((response) => {
             this.setState({
                 focused: false,
-                content: ''
+                content: '',
+                pendingApiCall: false
             })
+        })
+        .catch((error) => {
+            this.setState({ pendingApiCall: false })
         })
     }
 
@@ -57,9 +64,16 @@ class HoaxSubmit extends React.Component {
                     />
                     {this.state.focused && (
                         <div className='text-right mt-1'>
-                            <button className='btn btn-success' onClick={this.onClickHoaxify}>Hoaxify</button>
+                            <ButtonWithProgress
+                                className='btn btn-success'
+                                disabled={this.state.pendingApiCall}
+                                onClick={this.onClickHoaxify}
+                                pendingApiCall={this.state.pendingApiCall}
+                                text='Hoaxify'
+                            />
                             <button
                                 className='btn btn-light ms-1'
+                                disabled={this.state.pendingApiCall}
                                 onClick={this.onClickCancel}>
                                 <i className='fas fa-times'></i> Cancel
                             </button>
