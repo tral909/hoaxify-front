@@ -1,6 +1,7 @@
 import React from 'react'
 import * as apiCalls from '../api/apiCalls'
 import ProfileCard from '../components/ProfileCard'
+import HoaxFeed from '../components/HoaxFeed'
 import { connect } from 'react-redux'
 
 export class UserPage extends React.Component {
@@ -160,7 +161,16 @@ export class UserPage extends React.Component {
                 />
             )
         }
-        return <div data-testid='userpage'>{pageContent}</div>
+        return <div data-testid='userpage'>
+            <div className='row'>
+                <div className='col'>
+                    {pageContent}
+                </div>
+                <div className='col'>
+                    <HoaxFeed user={this.props.match.params.username} />
+                </div> 
+            </div> 
+        </div>
     }
 }
 

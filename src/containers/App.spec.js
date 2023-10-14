@@ -25,6 +25,13 @@ beforeEach(() => {
             image: 'profile.png'
         }
     })
+    apiCalls.loadHoaxes = jest.fn().mockResolvedValue({
+        data: {
+            content: [],
+            number: 0,
+            size: 3
+        }
+    })
 })
 
 const mockSuccessGetUser1 = {

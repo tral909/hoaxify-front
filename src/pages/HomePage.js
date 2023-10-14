@@ -1,6 +1,7 @@
 import React from 'react'
 import UserList from '../components/UserList'
 import HoaxSubmit from '../components/HoaxSubmit'
+import HoaxFeed from '../components/HoaxFeed'
 import { connect } from 'react-redux'
 
 export class HomePage extends React.Component {
@@ -10,6 +11,7 @@ export class HomePage extends React.Component {
                 <div className='row'>
                     <div className='col-8'>
                         {this.props.loggedInUser.isLoggedIn && <HoaxSubmit />}
+                        <HoaxFeed />
                     </div>
                     <div className='col-4'>
                         <UserList />
