@@ -40,6 +40,29 @@ const mockSuccessGetHoaxesSinglePage = {
     }
 }
 
+const mockSuccessGetHoaxesFirstOfMultiPage = {
+    data: {
+        content: [
+            {
+                id: 10,
+                content: "This is the latest hoax",
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: true,
+        last: false,
+        size: 5,
+        totalPages: 2
+    }
+}
+
 describe('HoaxFeed', () => {
     describe('Lifecycle', () => {
         it('calls loadHoaxes when it is rendered', () => {
@@ -85,6 +108,11 @@ describe('HoaxFeed', () => {
             apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesSinglePage)
             const { queryByText } = setup()
             await waitFor(() => expect(queryByText('This is the latest hoax')).toBeInTheDocument())
+        })
+        it('displays load more when there are next pages', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            const { queryByText } = setup()
+            await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
         })
     })
 })
