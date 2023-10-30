@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, waitFor } from '@testing-library/react'
+import { render, waitFor, fireEvent } from '@testing-library/react'
 import HoaxFeed from './HoaxFeed'
 import * as apiCalls from '../api/apiCalls'
 import { MemoryRouter } from 'react-router-dom'
@@ -53,11 +53,45 @@ const mockSuccessGetHoaxesFirstOfMultiPage = {
                     displayName: 'display1',
                     image: 'profile1.png'
                 }
+            },
+            {
+                id: 9,
+                content: "This is hoax 9",
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
             }
         ],
         number: 0,
         first: true,
         last: false,
+        size: 5,
+        totalPages: 2
+    }
+}
+
+const mockSuccessGetHoaxesLastOfMultiPage = {
+    data: {
+        content: [
+            {
+                id: 1,
+                content: "This is the oldest hoax",
+                date: 1561294668539,
+                user: {
+                    id: 1,
+                    username: 'user1',
+                    displayName: 'display1',
+                    image: 'profile1.png'
+                }
+            }
+        ],
+        number: 0,
+        first: true,
+        last: true,
         size: 5,
         totalPages: 2
     }
@@ -115,4 +149,46 @@ describe('HoaxFeed', () => {
             await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
         })
     })
+    describe('Interactions', () => {
+        it('calls loadOldHoaxes with id when clicking Load More', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadOldHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage)
+            const { queryByText } = setup()
+            await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
+            const loadMore = queryByText('Load More')
+            fireEvent.click(loadMore)
+            const firstParam = apiCalls.loadOldHoaxes.mock.calls[0][0]
+            expect(firstParam).toBe(9)
+        })
+        it('calls loadOldHoaxes with hoax id and username when clicking Load More when rendered with user property', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadOldHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage)
+            const { queryByText } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
+            const loadMore = queryByText('Load More')
+            fireEvent.click(loadMore)
+            expect(apiCalls.loadOldHoaxes).toHaveBeenCalledWith(9, 'user1')
+        })
+        it('displays loaded old hoax when loadOldHoaxes api call success', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadOldHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage)
+            const { queryByText } = setup()
+            await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
+            const loadMore = queryByText('Load More')
+            fireEvent.click(loadMore)
+            await waitFor(() => expect(queryByText('This is the oldest hoax')).toBeInTheDocument())
+        })
+        it('hides Load More when loadOldHoaxes api call returns last page', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadOldHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesLastOfMultiPage)
+            const { queryByText } = setup()
+            await waitFor(() => expect(queryByText('Load More')).toBeInTheDocument())
+            const loadMore = queryByText('Load More')
+            fireEvent.click(loadMore)
+            await waitFor(() => expect(queryByText('This is the oldest hoax')).toBeInTheDocument())
+            expect(queryByText('Load More')).not.toBeInTheDocument()
+        })
+    })
 })
+
+console.error = () => {}
