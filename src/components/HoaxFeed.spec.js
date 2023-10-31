@@ -115,6 +115,52 @@ describe('HoaxFeed', () => {
             const parameter = apiCalls.loadHoaxes.mock.calls[0][0]
             expect(parameter).toBeUndefined()
         })
+        xit('calls loadNewHoaxCount with topHoax id', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText } = setup()
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            const firstParam = apiCalls.loadNewHoaxCount.mock.calls[0][0]
+            expect(firstParam).toBe(10)
+        })
+        xit('calls loadNewHoaxCount with topHoax id and username when rendered with user property', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            expect(apiCalls.loadNewHoaxCount).toHaveBeenCalledWith(10, 'user1')
+        })
+        xit('displays new hoax count as 1 after loadNewHoaxCount success', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+        })
+        xit('displays new hoax count constantly', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 2 }})
+            await waitFor(() => expect(queryByText('There is 2 new hoax')).toBeInTheDocument())
+        }, 7000)
+        xit('does not call loadNewHoaxCount after component is unmounted', async (done) => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText, unmount } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            unmount()
+            setTimeout(() => {
+                expect(apiCalls.loadNewHoaxCount).toHaveBeenCalledTimes(1)
+                done()
+            }, 3500)
+        }, 7000)
+        xit('displays new hoax count as 1 after loadNewHoaxCount success when user does not have hoaxes initially', async () => {
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockEmptyResponse)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            const { queryByText } = setup({user: 'user1'})
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+        })
     })
     describe('Layout', () => {
         it('displays no hoax message when the response has empty page', async () => {
