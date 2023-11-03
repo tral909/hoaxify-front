@@ -40,6 +40,22 @@ const mockEmptyResponse = {
     }
 }
 
+const mockSuccessGetNewHoaxesList = {
+    data: [
+        {
+            id: 21,
+            content: "This is the newest hoax",
+            date: 1561294668539,
+            user: {
+                id: 1,
+                username: 'user1',
+                displayName: 'display1',
+                image: 'profile1.png'
+            }
+        }
+    ]
+}
+
 const mockSuccessGetHoaxesSinglePage = {
     data: {
         content: [
@@ -272,6 +288,61 @@ describe('HoaxFeed', () => {
             fireEvent.click(loadMore)
             await waitFor(() => expect(queryByText('This is the oldest hoax')).toBeInTheDocument())
             expect(queryByText('Load More')).not.toBeInTheDocument()
+        })
+        //load new hoaxes
+        xit('calls loadNewHoaxes with hoax id when clicking New Hoax Count Card', async () => {
+            useFakeIntervals()
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            apiCalls.loadNewHoaxes = jest.fn().mockResolvedValue(mockSuccessGetNewHoaxesList)
+            const { queryByText } = setup()
+            runTimer()
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            const newHoaxCount = queryByText('There is 1 new hoax')
+            fireEvent.click(newHoaxCount)
+            const firstParam = apiCalls.loadNewHoaxes.mock.calls[0][0]
+            expect(firstParam).toBe(10)
+            useRealIntervals()
+        })
+        xit('calls loadNewHoaxes with hoax id and username when clicking New Hoax Count Card', async () => {
+            useFakeIntervals()
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            apiCalls.loadNewHoaxes = jest.fn().mockResolvedValue(mockSuccessGetNewHoaxesList)
+            const { queryByText } = setup({user: 'user1'})
+            runTimer()
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            const newHoaxCount = queryByText('There is 1 new hoax')
+            fireEvent.click(newHoaxCount)
+            expect(apiCalls.loadNewHoaxes).toHaveBeenCalledWith(10, 'user1')
+            useRealIntervals()
+        })
+        xit('displays loaded new hoax when loadNewHoaxes api call success', async () => {
+            useFakeIntervals()
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            apiCalls.loadNewHoaxes = jest.fn().mockResolvedValue(mockSuccessGetNewHoaxesList)
+            const { queryByText } = setup({user: 'user1'})
+            runTimer()
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            const newHoaxCount = queryByText('There is 1 new hoax')
+            fireEvent.click(newHoaxCount)
+            await waitFor(() => expect(queryByText('This is the newest hoax')).toBeInTheDocument())
+            useRealIntervals()
+        })
+        xit('hides new hoax count when loadNewHoaxes api call success', async () => {
+            useFakeIntervals()
+            apiCalls.loadHoaxes = jest.fn().mockResolvedValue(mockSuccessGetHoaxesFirstOfMultiPage)
+            apiCalls.loadNewHoaxCount = jest.fn().mockResolvedValue({ data: { count: 1 }})
+            apiCalls.loadNewHoaxes = jest.fn().mockResolvedValue(mockSuccessGetNewHoaxesList)
+            const { queryByText } = setup({user: 'user1'})
+            runTimer()
+            await waitFor(() => expect(queryByText('There is 1 new hoax')).toBeInTheDocument())
+            const newHoaxCount = queryByText('There is 1 new hoax')
+            fireEvent.click(newHoaxCount)
+            await waitFor(() => expect(queryByText('This is the newest hoax')).toBeInTheDocument())
+            expect(queryByText('This is 1 new hoax')).not.toBeInTheDocument()
+            useRealIntervals()
         })
     })
 })
