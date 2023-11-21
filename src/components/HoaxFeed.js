@@ -9,7 +9,9 @@ class HoaxFeed extends Component {
             content: []
         },
         isLoadingHoaxes: false,
-        newHoaxCount: 0
+        newHoaxCount: 0,
+        isLoadingOldHoaxes: false,
+        isLoadingNewHoaxes: false
     }
     componentDidMount() {
         this.setState({isLoadingHoaxes: true})
@@ -44,12 +46,16 @@ class HoaxFeed extends Component {
             return 
         }
         const hoaxAtBottom = hoaxes[hoaxes.length - 1]
+        this.setState({isLoadingOldHoaxes: true})
         apiCalls.loadOldHoaxes(hoaxAtBottom.id, this.props.user)
             .then(response => {
                 const page = { ...this.state.page }
                 page.content = [...page.content, ...response.data.content]
                 page.last = response.data.last
-                this.setState({ page })
+                this.setState({ page, isLoadingOldHoaxes: false })
+            })
+            .catch(error => {
+                this.setState({ isLoadingOldHoaxes: false })
             })
     }
 
@@ -59,11 +65,14 @@ class HoaxFeed extends Component {
         if (hoaxes.length === 0) {
             topHoaxId = hoaxes[0].id
         }
+        this.setState({isLoadingNewHoaxes: true})
         apiCalls.loadNewHoaxes(topHoaxId, this.props.user)
             .then(response => {
                 const page = { ...this.state.page }
                 page.content = [...response.data, ...page.content]
-                this.setState({ page, newHoaxCount: 0 })
+                this.setState({ page, newHoaxCount: 0, isLoadingNewHoaxes: false })
+            }).catch(error => {
+                this.setState({isLoadingNewHoaxes: false})
             })
     }
 
@@ -78,16 +87,18 @@ class HoaxFeed extends Component {
                 </div>
             );
         }
+        const newHoaxCountMessage =
+            this.state.newHoaxCount === 1
+                ? 'There is 1 new hoax'
+                : `There are ${this.state.newHoaxCount} new hoaxes`
         return (
             <div>
                 {this.state.newHoaxCount > 0 && (
                     <div className='card card-header text-center'
-                        onClick={this.onClickLoadNew}
-                        style={{ cursor: 'pointer' }}
+                        onClick={!this.state.isLoadingNewHoaxes && this.onClickLoadNew}
+                        style={{ cursor: this.state.isLoadingNewHoaxes ? 'not-allowed' : 'pointer'}}
                     >
-                        {this.state.newHoaxCount === 1
-                            ? 'There is 1 new hoax'
-                            : `There are ${this.state.newHoaxCount} new hoaxes`}
+                        {this.state.isLoadingNewHoaxes ? <Spinner /> : newHoaxCountMessage}
                     </div>
                 )}
                 {this.state.page.content.map((hoax) => {
@@ -95,9 +106,13 @@ class HoaxFeed extends Component {
                 })}
                 {this.state.page.last === false && (
                     <div className='card card-header text-center'
-                        onClick={this.onClickLoadMore}
-                        style={{ cursor: 'pointer' }}
-                    >Load More</div>
+                        onClick={!this.state.isLoadingOldHoaxes && this.onClickLoadMore}
+                        style={{
+                            cursor: this.state.isLoadingOldHoaxes ? 'not-allowed' : 'pointer'
+                        }}
+                    >
+                        {this.state.isLoadingOldHoaxes ? <Spinner /> : 'Load More' }
+                    </div>
                 )}
             </div>
         )
